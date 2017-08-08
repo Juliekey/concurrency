@@ -1,5 +1,6 @@
 package concurrency.entities.transfers;
 
+import concurrency.ThreadsIdGenerator;
 import concurrency.entities.BankAccount;
 
 import javax.naming.InsufficientResourcesException;
@@ -11,7 +12,8 @@ public class Transfer implements Callable<Boolean> {
     private Integer id;
     private final static int WAIT_SEC = 3;
     private final static String UNABLE_TO_GET_THE_LOG_ERR_MSG = "Unable to get the  lock.";
-
+    //example of using thread local variable variable. Each thread has its own copy of this variable.
+    private final static ThreadLocal<Integer> threadId = new ThreadLocal<>();
     private final BankAccount accountFrom;
     private final BankAccount accountTo;
     private int amount;
@@ -37,6 +39,8 @@ public class Transfer implements Callable<Boolean> {
      */
     @Override
     public Boolean call() throws Exception {
+        threadId.set(ThreadsIdGenerator.generateId());
+        System.out.println("Got new thread id " + threadId.get());
         if (accountFrom.getBalance() < amount) {
             throw new InsufficientResourcesException();
         }
